@@ -16,19 +16,19 @@
         <p>Leave a comment below!</p>
         <div class="giscus-container">
             <script src="https://giscus.app/client.js"
-                data-repo="makrisk-rich/product-builder-makrisk"
-                data-repo-id="R_kgDOL8S2aA"
-                data-category="Announcements"
-                data-category-id="DIC_kwDOL8S2aM4Ce6aU"
-                data-mapping="pathname"
-                data-strict="0"
-                data-reactions-enabled="1"
-                data-emit-metadata="0"
-                data-input-position="bottom"
-                data-theme="preferred_color_scheme"
-                data-lang="ko"
-                crossorigin="anonymous"
-                async>
+                    data-repo="makrisk-rich/product-builder-makrisk"
+                    data-repo-id="R_kgDORD2yjQ"
+                    data-category="Announcements"
+                    data-category-id="DIC_kwDORD2yjc4C1oVQ"
+                    data-mapping="pathname"
+                    data-strict="0"
+                    data-reactions-enabled="1"
+                    data-emit-metadata="0"
+                    data-input-position="bottom"
+                    data-theme="dark"
+                    data-lang="ko"
+                    crossorigin="anonymous"
+                    async>
             </script>
         </div>
         <a href="index.html" class="nav-link">Back to Home</a>
@@ -39,20 +39,29 @@
             const themeToggle = document.getElementById('theme-toggle');
             
             function setGiscusTheme(theme) {
-                const giscus = document.querySelector('iframe.giscus-frame');
-                if (giscus) {
-                    giscus.contentWindow.postMessage({ giscus: { setTheme: theme } }, 'https://giscus.app');
-                }
+                const iframe = document.querySelector('iframe.giscus-frame');
+                if (!iframe) return;
+                iframe.contentWindow.postMessage({ giscus: { setTheme: theme } }, 'https://giscus.app');
             }
 
             function applyTheme() {
-                const savedTheme = localStorage.getItem('theme') || 'light';
-                const isDarkMode = savedTheme === 'dark';
-                document.body.classList.toggle('dark-mode', isDarkMode);
-                setGiscusTheme(isDarkMode ? 'dark' : 'light');
+                const savedTheme = localStorage.getItem('theme');
+                // If there's a saved theme, apply it. Otherwise, giscus will default to its data-theme.
+                if (savedTheme) {
+                    const isDarkMode = savedTheme === 'dark';
+                    document.body.classList.toggle('dark-mode', isDarkMode);
+                    setGiscusTheme(isDarkMode ? 'dark' : 'light'); // Send 'dark' or 'light' string
+                } else {
+                    // If no saved theme, and giscus defaults to dark, apply dark-mode to body if necessary
+                    if (document.body.classList.contains('dark-mode')) {
+                        setGiscusTheme('dark');
+                    } else {
+                        setGiscusTheme('light');
+                    }
+                }
             }
 
-            // Set initial theme
+            // Set initial theme on page load
             applyTheme();
             
             // Listen for our app's theme changes
