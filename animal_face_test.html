@@ -6,24 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Animal Face Test</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 </head>
 <body>
-    <div class="theme-toggle-container">
-        <button id="theme-toggle">Toggle Theme</button>
-    </div>
-    <div class="container">
-        <h1>동물상 테스트</h1>
-        <p>당신은 강아지상? 고양이상?</p>
+    <div>Teachable Machine Image Model</div>
+    <button type="button" onclick="init()">Start</button>
+    <div id="webcam-container"></div>
+    <div id="label-container"></div>
 
-        <div id="webcam-container"></div>
-        <div id="label-container"></div>
-        <button type="button" onclick="init()" class="generate-btn">시작</button>
-
-        <a href="index.html" class="nav-link">홈으로 돌아가기</a>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <script type="text/javascript">
         // More API functions here:
         // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
@@ -62,7 +53,7 @@
 
         async function loop() {
             webcam.update(); // update the webcam frame
-            await predict(); // Continuous prediction
+            await predict();
             window.requestAnimationFrame(loop);
         }
 
@@ -76,27 +67,6 @@
                 labelContainer.childNodes[i].innerHTML = classPrediction;
             }
         }
-
-        // Theme switching logic (preserved)
-        document.addEventListener('DOMContentLoaded', () => {
-            const themeToggle = document.getElementById('theme-toggle');
-            
-            function applyTheme() {
-                const savedTheme = localStorage.getItem('theme') || 'light';
-                const isDarkMode = savedTheme === 'dark';
-                document.body.classList.toggle('dark-mode', isDarkMode);
-            }
-
-            applyTheme();
-            
-            if(themeToggle){
-                themeToggle.addEventListener('click', () => {
-                    const isDarkMode = document.body.classList.toggle('dark-mode');
-                    const newTheme = isDarkMode ? 'dark' : 'light';
-                    localStorage.setItem('theme', newTheme);
-                });
-            }
-        });
     </script>
 </body>
 </html>
