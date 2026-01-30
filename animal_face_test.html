@@ -1,72 +1,284 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animal Face Test</title>
+    <title>동물상 테스트</title>
     <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div>Teachable Machine Image Model</div>
-    <button type="button" onclick="init()">Start</button>
-    <div id="webcam-container"></div>
-    <div id="label-container"></div>
-
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+</head>
+<body>
+    <div class="theme-toggle-container">
+        <button id="theme-toggle">Toggle Theme</button>
+    </div>
+    <div class="container">
+        <h1>동물상 테스트 🐾</h1>
+        <p>당신은 강아지상? 고양이상? 지금 바로 확인해보세요!</p>
+
+        <div class="input-selection">
+            <button class="select-btn active" id="webcam-mode-btn">웹캠으로 촬영</button>
+            <button class="select-btn" id="upload-mode-btn">이미지 파일 첨부</button>
+        </div>
+
+        <div id="webcam-section" class="input-section">
+            <div id="webcam-container"></div>
+            <button type="button" onclick="initWebcam()" class="action-btn generate-btn">웹캠 시작</button>
+            <button type="button" onclick="stopWebcam()" class="action-btn generate-btn hidden" id="stop-webcam-btn">웹캠 정지</button>
+        </div>
+
+        <div id="upload-section" class="input-section hidden">
+            <input type="file" id="image-upload" accept="image/*">
+            <img id="image-preview" src="#" alt="Image Preview" style="display:none; max-width:200px; max-height:200px; object-fit: contain; margin: 10px auto;">
+            <button type="button" onclick="predictImage()" class="action-btn generate-btn">이미지로 판별</button>
+        </div>
+
+        <div id="loading" class="loading-spinner" style="display:none;"></div>
+        
+        <div id="result-section" style="display:none;">
+            <h2>판별 결과</h2>
+            <div id="label-container"></div>
+            <div id="chart-container" class="chart-container">
+                <canvas id="predictionChart"></canvas>
+            </div>
+        </div>
+
+        <a href="index.html" class="nav-link">홈으로 돌아가기</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript">
-        // More API functions here:
-        // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
-
-        // the link to your model provided by Teachable Machine export panel
         const URL = "https://teachablemachine.withgoogle.com/models/8Vat-gajw/";
+        let model, webcam, maxPredictions;
+        let labelContainer;
+        let chart;
+        let currentSource = 'webcam'; // 'webcam' or 'upload'
 
-        let model, webcam, labelContainer, maxPredictions;
+        // Theme switching logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            function applyTheme() {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                const isDarkMode = savedTheme === 'dark';
+                document.body.classList.toggle('dark-mode', isDarkMode);
+                updateChartTheme(); // Update chart theme as well
+            }
+            applyTheme();
+            if(themeToggle){
+                themeToggle.addEventListener('click', () => {
+                    const isDarkMode = document.body.classList.toggle('dark-mode');
+                    const newTheme = isDarkMode ? 'dark' : 'light';
+                    localStorage.setItem('theme', newTheme);
+                    applyTheme(); // Re-apply theme to update chart
+                });
+            }
 
-        // Load the image model and setup the webcam
-        async function init() {
+            // Input mode selection
+            document.getElementById('webcam-mode-btn').addEventListener('click', () => switchInputMode('webcam'));
+            document.getElementById('upload-mode-btn').addEventListener('click', () => switchInputMode('upload'));
+            document.getElementById('image-upload').addEventListener('change', handleImageUpload);
+        });
+
+        async function loadModel() {
+            if (model) return; // Model already loaded
+            document.getElementById('loading').style.display = 'block';
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
-
-            // load the model and metadata
-            // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-            // or files from your local hard drive
-            // Note: the pose library adds "tmImage" object to your window (window.tmImage)
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
+            document.getElementById('loading').style.display = 'none';
+        }
 
-            // Convenience function to setup a webcam
-            const flip = true; // whether to flip the webcam
+        async function initWebcam() {
+            await loadModel(); // Ensure model is loaded
+
+            if (webcam && webcam.streaming) { // If webcam is already running, stop it
+                webcam.stop();
+                document.getElementById("webcam-container").innerHTML = '';
+            }
+            
+            document.getElementById('loading').style.display = 'block';
+            const flip = true;
             webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
             await webcam.setup(); // request access to the webcam
             await webcam.play();
-            window.requestAnimationFrame(loop);
-
-            // append elements to the DOM
             document.getElementById("webcam-container").appendChild(webcam.canvas);
-            labelContainer = document.getElementById("label-container");
-            for (let i = 0; i < maxPredictions; i++) { // and class labels
-                labelContainer.appendChild(document.createElement("div"));
+            document.getElementById('stop-webcam-btn').classList.remove('hidden');
+            document.getElementById('loading').style.display = 'none';
+            window.requestAnimationFrame(loopWebcam);
+        }
+
+        function stopWebcam() {
+            if (webcam && webcam.streaming) {
+                webcam.stop();
+                document.getElementById("webcam-container").innerHTML = '';
+                document.getElementById('stop-webcam-btn').classList.add('hidden');
             }
         }
 
-        async function loop() {
-            webcam.update(); // update the webcam frame
-            await predict();
-            window.requestAnimationFrame(loop);
+        async function loopWebcam() {
+            if (!webcam || !webcam.streaming) return; // Stop looping if webcam is stopped
+            webcam.update();
+            await predict(webcam.canvas); // Predict from webcam
+            window.requestAnimationFrame(loopWebcam);
         }
 
-        // run the webcam image through the image model
-        async function predict() {
-            // predict can take in an image, video or canvas html element
-            const prediction = await model.predict(webcam.canvas);
-            for (let i = 0; i < maxPredictions; i++) {
-                const classPrediction =
-                    prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-                labelContainer.childNodes[i].innerHTML = classPrediction;
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('image-preview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    // Clear previous results when new image is uploaded
+                    clearResults();
+                }
+                reader.readAsDataURL(file);
             }
         }
+
+        async function predictImage() {
+            await loadModel(); // Ensure model is loaded
+            
+            const img = document.getElementById('image-preview');
+            if (img.style.display === 'none' || !img.src || img.src === '#') {
+                alert('이미지 파일을 먼저 첨부해주세요.');
+                return;
+            }
+            document.getElementById('loading').style.display = 'block';
+            const prediction = await model.predict(img);
+            displayResults(prediction);
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        async function predict(imageSource) {
+            if (!model) return;
+            const prediction = await model.predict(imageSource);
+            displayResults(prediction);
+        }
+
+        function switchInputMode(mode) {
+            currentSource = mode;
+            if (mode === 'webcam') {
+                document.getElementById('webcam-section').classList.remove('hidden');
+                document.getElementById('upload-section').classList.add('hidden');
+                document.getElementById('webcam-mode-btn').classList.add('active');
+                document.getElementById('upload-mode-btn').classList.remove('active');
+                clearResults();
+                // Optionally start webcam automatically if user was in webcam mode before
+                // initWebcam(); 
+            } else { // upload mode
+                document.getElementById('webcam-section').classList.add('hidden');
+                document.getElementById('upload-section').classList.remove('hidden');
+                document.getElementById('webcam-mode-btn').classList.remove('active');
+                document.getElementById('upload-mode-btn').classList.add('active');
+                if (webcam && webcam.streaming) {
+                    stopWebcam();
+                }
+                clearResults();
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('result-section').style.display = 'none';
+            if (labelContainer) labelContainer.innerHTML = '';
+            if (chart) chart.destroy();
+        }
+
+        function displayResults(prediction) {
+            clearResults(); // Clear previous results
+            document.getElementById('result-section').style.display = 'block';
+            
+            const labels = prediction.map(p => p.className);
+            const probabilities = prediction.map(p => parseFloat(p.probability.toFixed(2)));
+
+            // Update text labels
+            if (labelContainer) {
+                labelContainer.innerHTML = '';
+                prediction.forEach(p => {
+                    const div = document.createElement('div');
+                    div.textContent = `${p.className}: ${(p.probability * 100).toFixed(0)}%`;
+                    labelContainer.appendChild(div);
+                });
+            }
+
+            // Update chart
+            const ctx = document.getElementById('predictionChart').getContext('2d');
+            const chartColors = ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)', 'rgba(255, 206, 86, 0.6)', 'rgba(153, 102, 255, 0.6)']; // Example colors
+            const borderColors = ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(153, 102, 255, 1)'];
+
+            if (chart) chart.destroy(); // Destroy old chart instance
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '확률',
+                        data: probabilities,
+                        backgroundColor: chartColors.slice(0, labels.length),
+                        borderColor: borderColors.slice(0, labels.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: {
+                                callback: function(value) {
+                                    return (value * 100) + '%';
+                                },
+                                color: getComputedStyle(document.body).getPropertyValue('--text-color') // Chart.js v3+
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)' // Light grid lines
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: getComputedStyle(document.body).getPropertyValue('--text-color')
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + (context.parsed.y * 100).toFixed(0) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            updateChartTheme(); // Apply theme to new chart
+        }
+
+        function updateChartTheme() {
+            if (!chart) return;
+            const textColor = getComputedStyle(document.body).getPropertyValue('--text-color');
+            const gridColor = document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+            chart.options.scales.y.ticks.color = textColor;
+            chart.options.scales.x.ticks.color = textColor;
+            chart.options.scales.y.grid.color = gridColor;
+            chart.options.scales.x.grid.color = gridColor;
+            
+            // Re-render chart to apply new colors
+            chart.update();
+        }
+
     </script>
 </body>
 </html>
