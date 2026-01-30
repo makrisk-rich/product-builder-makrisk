@@ -41,6 +41,9 @@ body.dark-mode {
     top: 20px;
     right: 20px;
     z-index: 100; /* Ensure it's above other content */
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 #theme-toggle {
@@ -175,7 +178,6 @@ h1 {
 
 .nav-link {
     display: inline-block;
-    margin-top: 20px;
     color: var(--button-background);
     text-decoration: none;
     font-weight: bold;
@@ -183,22 +185,6 @@ h1 {
 
 .nav-link:hover {
     text-decoration: underline;
-}
-
-/* Navigation Container Specific Styles */
-.navigation-container {
-    padding: 20px;
-}
-
-.navigation-container h2 {
-    margin-bottom: 20px;
-    color: var(--text-color);
-    font-size: 24px;
-}
-
-.navigation-container .nav-link {
-    margin: 10px 0;
-    display: block; /* Make links block level for better spacing */
 }
 
 /* Giscus Specific Styles */
