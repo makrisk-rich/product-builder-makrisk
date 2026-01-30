@@ -185,6 +185,22 @@ h1 {
     text-decoration: underline;
 }
 
+/* Navigation Container Specific Styles */
+.navigation-container {
+    padding: 20px;
+}
+
+.navigation-container h2 {
+    margin-bottom: 20px;
+    color: var(--text-color);
+    font-size: 24px;
+}
+
+.navigation-container .nav-link {
+    margin: 10px 0;
+    display: block; /* Make links block level for better spacing */
+}
+
 /* Giscus Specific Styles */
 .giscus-container {
     margin-top: 30px;
