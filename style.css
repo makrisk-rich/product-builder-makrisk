@@ -172,3 +172,15 @@ h1 {
 .submit-btn:hover {
     background-color: var(--button-hover);
 }
+
+.nav-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: var(--button-background);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
