@@ -7,15 +7,19 @@
     --button-hover: #0056b3;
     --number-background: #4CAF50;
     --number-text: white;
+    --input-border-color: #ccc;
+    --input-focus-border-color: #007BFF;
 }
 
 body {
     font-family: 'Arial', sans-serif;
     display: flex;
+    flex-direction: column; /* Allow forms to stack vertically */
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh; /* Use min-height to allow content to expand */
     margin: 0;
+    padding: 20px; /* Add some padding around content */
     background-color: var(--background-color);
     color: var(--text-color);
     transition: background-color 0.3s, color 0.3s;
@@ -28,12 +32,15 @@ body.dark-mode {
     --button-background: #0d6efd;
     --button-hover: #0a58ca;
     --number-background: #28a745;
+    --input-border-color: #555;
+    --input-focus-border-color: #0d6efd;
 }
 
 .theme-toggle-container {
     position: absolute;
     top: 20px;
     right: 20px;
+    z-index: 100; /* Ensure it's above other content */
 }
 
 #theme-toggle {
@@ -57,6 +64,9 @@ body.dark-mode {
     background-color: var(--container-background);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s;
+    margin-bottom: 30px; /* Space between containers */
+    max-width: 600px; /* Limit width for better readability */
+    width: 100%; /* Make it responsive */
 }
 
 h1 {
@@ -69,6 +79,7 @@ h1 {
     justify-content: center;
     gap: 15px;
     margin-bottom: 40px;
+    flex-wrap: wrap; /* Allow numbers to wrap on smaller screens */
 }
 
 .number {
@@ -102,5 +113,62 @@ h1 {
 }
 
 .generate-btn:hover {
+    background-color: var(--button-hover);
+}
+
+/* Contact Form Specific Styles */
+.contact-form-container h2 {
+    margin-bottom: 25px;
+    color: var(--text-color);
+    font-size: 28px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group textarea {
+    width: calc(100% - 20px); /* Account for padding */
+    padding: 12px 10px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: var(--container-background);
+    color: var(--text-color);
+    transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group textarea:focus {
+    border-color: var(--input-focus-border-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.submit-btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--button-background);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%; /* Make button full width */
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
     background-color: var(--button-hover);
 }
