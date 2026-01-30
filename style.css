@@ -184,3 +184,13 @@ h1 {
 .nav-link:hover {
     text-decoration: underline;
 }
+
+/* Giscus Specific Styles */
+.giscus-container {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 8px;
+    background-color: var(--container-background);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
