@@ -14,6 +14,7 @@ themeToggle.addEventListener('click', () => {
         theme = 'dark';
     }
     localStorage.setItem('theme', theme);
+    setGiscusTheme(theme);
 });
 
 function generateLottoNumbers() {
@@ -36,7 +37,16 @@ function applyTheme() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
+        setGiscusTheme('dark');
+    } else {
+        setGiscusTheme('light');
     }
+}
+
+function setGiscusTheme(theme) {
+    const iframe = document.querySelector('iframe.giscus-frame');
+    if (!iframe) return;
+    iframe.contentWindow.postMessage({ giscus: { setTheme: theme } }, 'https://giscus.app');
 }
 
 applyTheme();
