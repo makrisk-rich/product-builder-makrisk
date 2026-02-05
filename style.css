@@ -186,6 +186,17 @@ footer a:hover {
     color: var(--button-background);
 }
 
+.footer-container {
+    width: 100%;
+    max-width: 800px; /* Same as container and header-container */
+    margin: 0 auto; /* Center the container */
+    padding: 0 20px; /* Add horizontal padding inside */
+    display: flex; /* Make it a flex container */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center items horizontally */
+    text-align: center;
+}
+
 /* Blog Styles */
 .blog-list {
     margin-top: 30px;
