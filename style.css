@@ -40,10 +40,6 @@ body.dark-mode {
 }
 
 .theme-toggle-container {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 100; /* Ensure it's above other content */
     display: flex;
     align-items: center;
     gap: 20px;
@@ -71,7 +67,7 @@ body.dark-mode {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s;
     margin-bottom: 30px; /* Space between containers */
-    max-width: 600px; /* Limit width for better readability */
+    max-width: 800px; /* Unified max-width */
     width: 100%; /* Make it responsive */
 }
 
@@ -127,10 +123,17 @@ header {
     width: 100%;
     background-color: var(--container-background);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    padding: 20px 0;
+    padding: 20px;
     margin-bottom: 30px;
     display: flex;
     justify-content: center;
+}
+
+.header-container {
+    width: 100%;
+    max-width: 800px; /* Same as container */
+    display: flex;
+    justify-content: space-between;
     align-items: center;
 }
 
