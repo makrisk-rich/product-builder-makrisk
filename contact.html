@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문의 - Lotto Number Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">홈</a></li>
+                <li><a href="blog.html">블로그</a></li>
+                <li><a href="about.html">소개</a></li>
+                <li><a href="contact.html">문의</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="contact-form-container container">
+        <h2>제휴 문의</h2>
+        <form action="https://formspree.io/f/xojwnwbn" method="POST">
+            <div class="form-group">
+                <label for="name">이름:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">이메일:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="message">메시지:</label>
+                <textarea id="message" name="message" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">문의하기</button>
+        </form>
+    </div>
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Lotto Number Generator. All Rights Reserved.</p>
+            <ul>
+                <li><a href="privacy.html">개인정보처리방침</a></li>
+                <li><a href="terms.html">이용약관</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>

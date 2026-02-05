@@ -11,10 +11,20 @@
      crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="theme-toggle-container">
-        <a href="animal_face_test.html" class="nav-link">동물상 테스트</a>
-        <button id="theme-toggle">Toggle Theme</button>
-    </div>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">홈</a></li>
+                <li><a href="blog.html">블로그</a></li>
+                <li><a href="about.html">소개</a></li>
+                <li><a href="contact.html">문의</a></li>
+            </ul>
+        </nav>
+        <div class="theme-toggle-container">
+            <a href="animal_face_test.html" class="nav-link">동물상 테스트</a>
+            <button id="theme-toggle">Toggle Theme</button>
+        </div>
+    </header>
     <div class="container">
         <h1>Lotto Number Generator</h1>
         <ins class="adsbygoogle"
@@ -29,6 +39,9 @@
         <div class="numbers-container">
         </div>
         <button class="generate-btn">Generate Numbers</button>
+        <p class="description">
+            버튼을 클릭하여 6개의 행운의 로또 번호를 생성하세요! 각 번호는 무작위로 선택됩니다.
+        </p>
     </div>
 
     <ins class="adsbygoogle"
@@ -40,25 +53,6 @@
     <script>
         (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
-    <div class="contact-form-container container">
-        <h2>제휴 문의</h2>
-        <form action="https://formspree.io/f/xojwnwbn" method="POST">
-            <div class="form-group">
-                <label for="name">이름:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-            <div class="form-group">
-                <label for="email">이메일:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="message">메시지:</label>
-                <textarea id="message" name="message" rows="5" required></textarea>
-            </div>
-            <button type="submit" class="submit-btn">문의하기</button>
-        </form>
-    </div>
-
     <div class="comments-container container">
         <h2>Comments</h2>
         <p>Leave a comment below!</p>
@@ -82,5 +76,14 @@
     </div>
 
     <script src="main.js"></script>
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Lotto Number Generator. All Rights Reserved.</p>
+            <ul>
+                <li><a href="privacy.html">개인정보처리방침</a></li>
+                <li><a href="terms.html">이용약관</a></li>
+            </ul>
+        </div>
+    </footer>
 </body>
 </html>

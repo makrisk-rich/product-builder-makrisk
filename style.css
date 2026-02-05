@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
 :root {
     --background-color: #f0f2f5;
     --container-background: #ffffff;
@@ -12,7 +14,7 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Noto Sans KR', sans-serif;
     display: flex;
     flex-direction: column; /* Allow forms to stack vertically */
     justify-content: center;
@@ -24,6 +26,7 @@ body {
     color: var(--text-color);
     transition: background-color 0.3s, color 0.3s;
 }
+
 
 body.dark-mode {
     --background-color: #121212;
@@ -118,6 +121,164 @@ h1 {
 .generate-btn:hover {
     background-color: var(--button-hover);
 }
+
+/* Header and Navigation */
+header {
+    width: 100%;
+    background-color: var(--container-background);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 20px 0;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 30px;
+}
+
+header nav a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+header nav a:hover {
+    color: var(--button-background);
+}
+
+/* Footer */
+footer {
+    width: 100%;
+    background-color: var(--container-background);
+    padding: 20px 0;
+    margin-top: 30px;
+    text-align: center;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+footer a {
+    text-decoration: none;
+    color: var(--text-color);
+    transition: color 0.3s;
+}
+
+footer a:hover {
+    color: var(--button-background);
+}
+
+/* Blog Styles */
+.blog-list {
+    margin-top: 30px;
+}
+
+.blog-post-summary {
+    background-color: var(--container-background);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+.blog-post-summary h2 a {
+    text-decoration: none;
+    color: var(--text-color);
+    transition: color 0.3s;
+}
+
+.blog-post-summary h2 a:hover {
+    color: var(--button-background);
+}
+
+.blog-post-summary p {
+    margin-top: 10px;
+    line-height: 1.6;
+}
+
+.blog-post-summary span {
+    display: block;
+    margin-top: 15px;
+    color: #888;
+    font-size: 14px;
+}
+
+article {
+    background-color: var(--container-background);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    line-height: 1.8;
+}
+
+article h1, article h2 {
+    margin-bottom: 20px;
+}
+
+article p {
+    margin-bottom: 20px;
+}
+
+article em {
+    color: #888;
+    font-style: normal;
+}
+
+/* Search Bar Styles */
+.search-bar-container {
+    margin: 30px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+#blog-search {
+    width: 100%;
+    padding: 12px 20px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 25px 0 0 25px;
+    font-size: 16px;
+    background-color: var(--container-background);
+    color: var(--text-color);
+    outline: none;
+}
+
+#search-btn {
+    padding: 12px 20px;
+    border: none;
+    background-color: var(--button-background);
+    color: white;
+    border-radius: 0 25px 25px 0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#search-btn:hover {
+    background-color: var(--button-hover);
+}
+
 
 /* Contact Form Specific Styles */
 .contact-form-container h2 {
