@@ -1,38 +1,17 @@
+# Blueprint
 
-# Lotto Number Generator
+## 개요
 
-## Overview
+이 문서는 Google AdSense를 통합하여 웹사이트에 광고를 표시하는 과정을 안내합니다.
 
-A simple, beautifully designed web application to generate random lottery numbers. The application will be built with modern HTML, CSS, and JavaScript, following best practices for a great user experience.
+## 현재 구현된 기능
 
-## Design and Features
+- `index.html` 파일에 Google AdSense 스크립트가 추가되었습니다.
+- 광고가 게재될 위치에 광고 단위(ad unit)가 추가되었습니다.
+- `ca-pub-XXXXXXXXXXXXXXXX` 플레이스홀더가 사용자 제공 ID (`ca-pub-6207865399635597`)로 업데이트되었습니다.
+- `<meta name="google-adsense-account" content="ca-pub-6207865399635597">` 메타 태그가 `index.html`의 `<head>` 섹션에 추가되었습니다.
+- `ads.txt` 파일이 루트 디렉토리에 생성되었습니다.
 
-*   **Modern & Clean UI:** A visually appealing interface with a focus on usability.
-*   **Responsive Design:** The layout will adapt to different screen sizes, working on both desktop and mobile devices.
-*   **Interactive Elements:** A button to generate numbers with a satisfying click effect. The numbers will appear with a subtle animation.
-*   **Typography:** Clear and readable fonts will be used to display the title and the generated numbers.
-*   **Color Palette:** A vibrant and energetic color scheme will be used.
-*   **Background:** A subtle noise texture will be applied to the background for a premium feel.
-*   **Depth and Effects:** The main container will have a multi-layered drop shadow to create a sense of depth.
+## 현재 요청 계획
 
-## Current Plan
-
-1.  **Structure (`index.html`):**
-    *   Set up the basic HTML structure.
-    *   Add a title: "Lotto Number Generator".
-    *   Add a container for the generated numbers.
-    *   Add a button to trigger the number generation.
-    *   Link to the CSS and JavaScript files.
-
-2.  **Styling (`style.css`):**
-    *   Apply a modern and clean design.
-    *   Implement a responsive layout using Flexbox or Grid.
-    *   Add styles for the number container and the generation button.
-    *   Choose a color palette and apply it.
-    *   Add the background texture and drop shadows.
-
-3.  **Functionality (`main.js`):**
-    *   Implement a function to generate 6 unique random numbers between 1 and 45.
-    *   Add an event listener to the button to call the generation function.
-    *   Display the generated numbers in the designated container.
-    *   Implement a simple animation for the number display.
+- 완료됨.
