@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>축구공 트래커 - Lotto Number Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .video-container {
+            position: relative;
+            margin: 20px auto;
+            max-width: 640px;
+        }
+        #videoCanvas {
+            width: 100%;
+            border: 1px solid var(--text-color);
+        }
+        #videoPlayer {
+            display: none;
+        }
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .status {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <nav>
+                <ul>
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li><a href="about.html">소개</a></li>
+                    <li><a href="contact.html">문의</a></li>
+                    <li><a href="soccer_tracker.html">축구공 트래커</a></li>
+                </ul>
+            </nav>
+            <div class="theme-toggle-container">
+                <a href="animal_face_test.html" class="nav-link">동물상 테스트</a>
+                <button id="theme-toggle">Toggle Theme</button>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <h1>축구공 트래커 ⚽</h1>
+        <p>축구 동영상을 업로드하면 AI가 축구공을 추적합니다. (참고: 브라우저에서 직접 처리하므로 긴 영상은 매우 느릴 수 있습니다.)</p>
+        
+        <div class="controls">
+            <input type="file" id="videoUpload" accept="video/*">
+            <button id="processBtn" class="generate-btn" disabled>영상 처리 시작</button>
+        </div>
+
+        <p id="status" class="status">OpenCV.js 로딩 중... 잠시만 기다려주세요.</p>
+
+        <div class="video-container">
+            <video id="videoPlayer" controls></video>
+            <canvas id="videoCanvas"></canvas>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2026 Lotto Number Generator. All Rights Reserved.</p>
+            <ul>
+                <li><a href="privacy.html">개인정보처리방침</a></li>
+                <li><a href="terms.html">이용약관</a></li>
+                <li><a href="contact.html">문의</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script async src="https://docs.opencv.org/4.5.4/opencv.js" onload="onOpenCvReady();"></script>
+    <script src="main.js"></script>
+    <script src="soccer_tracker.js"></script>
+</body>
+</html>
