@@ -9,9 +9,22 @@
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 </head>
 <body>
-    <div class="theme-toggle-container">
-        <button id="theme-toggle">Toggle Theme</button>
-    </div>
+    <header>
+        <div class="header-container">
+            <nav>
+                <ul>
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li><a href="about.html">소개</a></li>
+                    <li><a href="contact.html">문의</a></li>
+                </ul>
+            </nav>
+            <div class="theme-toggle-container">
+                <a href="animal_face_test.html" class="nav-link">동물상 테스트</a>
+                <button id="theme-toggle">Toggle Theme</button>
+            </div>
+        </div>
+    </header>
     <div class="container">
         <h1>동물상 테스트 🐾</h1>
         <p>당신은 강아지상? 고양이상? 지금 바로 확인해보세요!</p>
@@ -43,7 +56,6 @@
             </div>
         </div>
 
-        <a href="index.html" class="nav-link">홈으로 돌아가기</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -54,24 +66,8 @@
         let chart;
         let currentSource = 'webcam'; // 'webcam' or 'upload'
 
-        // Theme switching logic
+        // Theme switching logic is now in main.js, but we keep the chart update logic here.
         document.addEventListener('DOMContentLoaded', () => {
-            const themeToggle = document.getElementById('theme-toggle');
-            function applyTheme() {
-                const savedTheme = localStorage.getItem('theme') || 'light';
-                const isDarkMode = savedTheme === 'dark';
-                document.body.classList.toggle('dark-mode', isDarkMode);
-                updateChartTheme(); // Update chart theme as well
-            }
-            applyTheme();
-            if(themeToggle){
-                themeToggle.addEventListener('click', () => {
-                    const isDarkMode = document.body.classList.toggle('dark-mode');
-                    const newTheme = isDarkMode ? 'dark' : 'light';
-                    localStorage.setItem('theme', newTheme);
-                    applyTheme(); // Re-apply theme to update chart
-                });
-            }
 
             // Input mode selection
             document.getElementById('webcam-mode-btn').addEventListener('click', () => switchInputMode('webcam'));
@@ -188,6 +184,7 @@
 
         function displayResults(prediction) {
             clearResults(); // Clear previous results
+            labelContainer = document.getElementById('label-container');
             document.getElementById('result-section').style.display = 'block';
             
             const labels = prediction.map(p => p.className);
@@ -280,5 +277,16 @@
         }
 
     </script>
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2026 Lotto Number Generator. All Rights Reserved.</p>
+            <ul>
+                <li><a href="privacy.html">개인정보처리방침</a></li>
+                <li><a href="terms.html">이용약관</a></li>
+                <li><a href="contact.html">문의</a></li>
+            </ul>
+        </div>
+    </footer>
+    <script src="main.js"></script>
 </body>
 </html>
