@@ -79,7 +79,14 @@
         </div>
     </footer>
 
-    <script async src="https://docs.opencv.org/4.5.4/opencv.js" onload="onOpenCvReady();"></script>
+    <script async src="https://docs.opencv.org/4.5.4/opencv.js" onload="onOpenCvReady();" onerror="onOpenCvError();"></script>
+    <script>
+        // Define onOpenCvError for the onerror event of opencv.js
+        function onOpenCvError() {
+            document.getElementById('status').innerHTML = 'OpenCV.js 로드 실패! 웹페이지를 새로고침하거나 인터넷 연결을 확인해주세요.';
+            document.getElementById('processBtn').disabled = true;
+        }
+    </script>
     <script src="main.js"></script>
     <script src="soccer_tracker.js"></script>
 </body>

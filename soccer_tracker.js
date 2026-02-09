@@ -16,6 +16,7 @@ let stream; // To hold the MediaStream from canvas
 
 // Called when OpenCV.js is ready
 function onOpenCvReady() {
+    console.log('OpenCV.js loaded successfully.'); // Added log
     status.innerHTML = 'OpenCV.js가 준비되었습니다. 처리할 동영상을 선택하세요.';
     processBtn.disabled = false;
     downloadBtn.disabled = true; // Disable download button initially
@@ -23,19 +24,34 @@ function onOpenCvReady() {
 
 // Event Listeners
 videoUpload.addEventListener('change', (e) => {
+    console.log('Video file selected.'); // Added log
     const file = e.target.files[0];
     if (file) {
         const url = URL.createObjectURL(file);
         videoPlayer.src = url;
         videoPlayer.onloadedmetadata = () => {
+            console.log('Video metadata loaded.'); // Added log
             canvas.width = videoPlayer.videoWidth;
             canvas.height = videoPlayer.videoHeight;
             videoLoaded = true;
             status.innerHTML = '동영상이 로드되었습니다. "영상 처리 시작" 버튼을 누르세요.';
             progressPercent.textContent = ''; // Clear progress text
             ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
+            processBtn.disabled = false; // Ensure process button is enabled after video loads
             downloadBtn.disabled = true; // Disable download if new video is loaded
         };
+        videoPlayer.onerror = (err) => { // Added error handler for video player
+            console.error('Video loading error:', err);
+            status.innerHTML = '동영상 로드 중 오류가 발생했습니다. 다른 파일을 시도해보세요.';
+            videoLoaded = false;
+            processBtn.disabled = true;
+            downloadBtn.disabled = true;
+        };
+    } else {
+        status.innerHTML = '동영상 파일이 선택되지 않았습니다.';
+        videoLoaded = false;
+        processBtn.disabled = true;
+        downloadBtn.disabled = true;
     }
 });
 
@@ -46,6 +62,7 @@ processBtn.addEventListener('click', () => {
     }
     if (processing) return;
 
+    console.log('Starting video processing...'); // Added log
     processing = true;
     status.innerHTML = '영상 처리 중...';
     downloadBtn.disabled = true;
@@ -66,6 +83,7 @@ processBtn.addEventListener('click', () => {
     };
 
     mediaRecorder.onstop = () => {
+        console.log('Video recording stopped.'); // Added log
         const blob = new Blob(recordedChunks, { type: 'video/webm' });
         const url = URL.createObjectURL(blob);
         downloadBtn.href = url;
@@ -79,6 +97,7 @@ processBtn.addEventListener('click', () => {
     };
 
     mediaRecorder.start();
+    videoPlayer.currentTime = 0; // Reset video to start
     videoPlayer.play();
     requestAnimationFrame(processFrame);
 });
