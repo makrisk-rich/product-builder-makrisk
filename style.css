@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
 
 :root {
@@ -484,3 +483,7 @@ article em {
     100% { transform: rotate(360deg); }
 }
 
+.disabled-link {
+    pointer-events: none;
+    opacity: 0.5;
+}

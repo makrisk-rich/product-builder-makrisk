@@ -57,10 +57,14 @@
         <div class="controls">
             <input type="file" id="videoUpload" accept="video/*">
             <button id="processBtn" class="generate-btn" disabled>영상 처리 시작</button>
-            <button id="downloadBtn" class="generate-btn" disabled>처리된 영상 다운로드</button>
+            <button id="stopBtn" class="generate-btn" disabled>처리 중지</button>
+            <a id="downloadBtn" class="generate-btn disabled-link" href="#">처리된 영상 다운로드</a>
         </div>
 
-        <p id="status" class="status">OpenCV.js 로딩 중... 잠시만 기다려주세요. <span id="progressPercent"></span></p>
+        <div class="status-container" style="text-align: center; margin-top: 15px;">
+            <p id="status" class="status" style="margin: 0;">OpenCV.js 로딩 중... 잠시만 기다려주세요.</p>
+            <p id="progressPercent" class="status" style="margin: 0;"></p>
+        </div>
 
         <div class="video-container">
             <video id="videoPlayer" controls></video>
