@@ -1,17 +1,24 @@
 // Global variables
 const videoUpload = document.getElementById('videoUpload');
 const processBtn = document.getElementById('processBtn');
+const downloadBtn = document.getElementById('downloadBtn');
 const status = document.getElementById('status');
+const progressPercent = document.getElementById('progressPercent');
 const videoPlayer = document.getElementById('videoPlayer');
 const canvas = document.getElementById('videoCanvas');
 const ctx = canvas.getContext('2d');
 let videoLoaded = false;
 let processing = false;
 
+let mediaRecorder;
+let recordedChunks = [];
+let stream; // To hold the MediaStream from canvas
+
 // Called when OpenCV.js is ready
 function onOpenCvReady() {
     status.innerHTML = 'OpenCV.js가 준비되었습니다. 처리할 동영상을 선택하세요.';
     processBtn.disabled = false;
+    downloadBtn.disabled = true; // Disable download button initially
 }
 
 // Event Listeners
@@ -25,7 +32,9 @@ videoUpload.addEventListener('change', (e) => {
             canvas.height = videoPlayer.videoHeight;
             videoLoaded = true;
             status.innerHTML = '동영상이 로드되었습니다. "영상 처리 시작" 버튼을 누르세요.';
+            progressPercent.textContent = ''; // Clear progress text
             ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
+            downloadBtn.disabled = true; // Disable download if new video is loaded
         };
     }
 });
@@ -39,17 +48,58 @@ processBtn.addEventListener('click', () => {
 
     processing = true;
     status.innerHTML = '영상 처리 중...';
+    downloadBtn.disabled = true;
+    recordedChunks = []; // Clear previous recordings
+    
+    // Start recording from canvas
+    // Ensure the stream is recreated each time to avoid issues after stopping
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop()); // Stop previous tracks
+    }
+    stream = canvas.captureStream(30); // 30 FPS
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+
+    mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+            recordedChunks.push(event.data);
+        }
+    };
+
+    mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        downloadBtn.href = url;
+        downloadBtn.download = 'processed_video.webm';
+        downloadBtn.disabled = false;
+        status.innerHTML = '영상 처리가 완료되었습니다. 다운로드 버튼을 누르세요.';
+        progressPercent.textContent = '';
+        processing = false;
+        // Clean up stream tracks
+        stream.getTracks().forEach(track => track.stop());
+    };
+
+    mediaRecorder.start();
     videoPlayer.play();
     requestAnimationFrame(processFrame);
 });
 
+downloadBtn.addEventListener('click', () => {
+    // This listener is mainly for activating the download attribute
+    // The href and download properties are set during mediaRecorder.onstop
+});
+
 function processFrame() {
     if (!processing || videoPlayer.paused || videoPlayer.ended) {
-        processing = false;
-        status.innerHTML = '영상 처리가 완료되었습니다.';
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop(); // Stop recording when video ends or processing stops
+        }
         return;
     }
 
+    // Update progress percentage
+    const currentProgress = Math.floor((videoPlayer.currentTime / videoPlayer.duration) * 100);
+    progressPercent.textContent = `(${currentProgress}%)`;
+    
     // Draw video frame to canvas
     ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
     
@@ -118,6 +168,9 @@ function processFrame() {
         console.error(err);
         status.innerHTML = '오류 발생: ' + err.message;
         processing = false;
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
         return;
     }
 
