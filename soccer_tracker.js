@@ -5,7 +5,7 @@ const stopBtn = document.getElementById('stopBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const status = document.getElementById('status');
 const progressPercent = document.getElementById('progressPercent');
-const trackingStatus = document.getElementById('trackingStatus'); // New: Tracking Status
+const trackingStatus = document.getElementById('trackingStatus');
 const videoPlayer = document.getElementById('videoPlayer');
 const canvas = document.getElementById('videoCanvas');
 const ctx = canvas.getContext('2d');
@@ -14,13 +14,13 @@ let processing = false;
 
 let mediaRecorder;
 let recordedChunks = [];
-let stream; // To hold the MediaStream from canvas
+let stream;
 
 // Called when OpenCV.js is ready
 function onOpenCvReady() {
     console.log('OpenCV.js loaded successfully.');
     status.textContent = 'OpenCV.js가 준비되었습니다. 처리할 동영상을 선택하세요.';
-    trackingStatus.textContent = ''; // Initialize tracking status
+    trackingStatus.textContent = '';
     processBtn.disabled = false;
     stopBtn.disabled = true;
     downloadBtn.classList.add('disabled-link');
@@ -39,8 +39,8 @@ videoUpload.addEventListener('change', (e) => {
             canvas.height = videoPlayer.videoHeight;
             videoLoaded = true;
             status.textContent = '동영상이 로드되었습니다. "영상 처리 시작" 버튼을 누르세요.';
-            progressPercent.textContent = ''; // Clear progress text
-            trackingStatus.textContent = ''; // Clear tracking status
+            progressPercent.textContent = '';
+            trackingStatus.textContent = '';
             ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
             processBtn.disabled = false;
             stopBtn.disabled = true;
@@ -50,7 +50,7 @@ videoUpload.addEventListener('change', (e) => {
         videoPlayer.onerror = (err) => {
             console.error('Video loading error:', err);
             status.textContent = '동영상 로드 중 오류가 발생했습니다. 다른 파일을 시도해보세요.';
-            trackingStatus.textContent = '추적 상태: 오류'; // Set tracking status on error
+            trackingStatus.textContent = '추적 상태: 오류';
             videoLoaded = false;
             processBtn.disabled = true;
             stopBtn.disabled = true;
@@ -76,7 +76,7 @@ processBtn.addEventListener('click', () => {
     console.log('Starting video processing...');
     processing = true;
     status.textContent = '영상 처리 중...';
-    trackingStatus.textContent = '추적 상태: 초기화 중...'; // Initial tracking status
+    trackingStatus.textContent = '추적 상태: 초기화 중...';
     processBtn.disabled = true;
     stopBtn.disabled = false;
     downloadBtn.classList.add('disabled-link');
@@ -85,7 +85,7 @@ processBtn.addEventListener('click', () => {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
     }
-    stream = canvas.captureStream(30); // 30 FPS
+    stream = canvas.captureStream(30);
     mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
 
     mediaRecorder.ondataavailable = (event) => {
@@ -104,7 +104,7 @@ processBtn.addEventListener('click', () => {
         downloadBtn.classList.remove('disabled-link');
         status.textContent = '영상 처리가 완료되었습니다. 다운로드 버튼을 누르세요.';
         progressPercent.textContent = '';
-        trackingStatus.textContent = '추적 상태: 완료'; // Final tracking status
+        trackingStatus.textContent = '추적 상태: 완료';
         processing = false;
         processBtn.disabled = false;
         stopBtn.disabled = true;
@@ -117,10 +117,12 @@ processBtn.addEventListener('click', () => {
     requestAnimationFrame(processFrame);
 });
 
+// "일시정지" 버튼은 이제 사실상 "처리 중지"와 동일하게 작동합니다.
 stopBtn.addEventListener('click', () => {
     if (processing) {
         console.log('Stopping video processing by user.');
         processing = false; // This will trigger the stop condition in processFrame
+        videoPlayer.pause(); // Pause video playback
     }
 });
 
@@ -130,10 +132,9 @@ function processFrame() {
             console.log('Stopping MediaRecorder.');
             mediaRecorder.stop();
         }
-        // Ensure UI state is correct on stop/end
-        if (!processing) { // Stopped by user
+        if (!processing) {
              status.textContent = '처리가 중지되었습니다.';
-             trackingStatus.textContent = '추적 상태: 중지됨'; // Tracking status on user stop
+             trackingStatus.textContent = '추적 상태: 중지됨';
         }
         processBtn.disabled = false;
         stopBtn.disabled = true;
@@ -147,62 +148,49 @@ function processFrame() {
     
     try {
         let src = cv.imread(canvas);
-        let hsv = new cv.Mat();
-        let mask = new cv.Mat();
-        let contours = new cv.MatVector();
-        let hierarchy = new cv.Mat();
+        let gray = new cv.Mat();
+        let circles = new cv.Mat();
 
-        cv.cvtColor(src, hsv, cv.COLOR_RGBA2RGB);
-        cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
+        // Convert to grayscale
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
 
-        let low = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [0, 0, 200, 0]);
-        let high = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [180, 50, 255, 255]);
-        cv.inRange(hsv, low, high, mask);
+        // Blur the image to reduce noise and false detections
+        cv.GaussianBlur(gray, gray, new cv.Size(9, 9), 2, 2);
 
-        let M = cv.Mat.ones(5, 5, cv.CV_8U);
-        cv.morphologyEx(mask, mask, cv.MORPH_OPEN, M);
-        cv.morphologyEx(mask, mask, cv.MORPH_CLOSE, M);
-        M.delete();
+        // Detect circles using HoughCircles
+        // Parameters: (image, circles, method, dp, minDist, param1, param2, minRadius, maxRadius)
+        cv.HoughCircles(gray, circles, cv.HOUGH_GRADIENT,
+                        1,           // dp: Inverse ratio of accumulator resolution
+                        gray.rows / 8, // minDist: Minimum distance between detected centers
+                        100,         // param1: Upper threshold for the Canny edge detector
+                        30,          // param2: Accumulator threshold for circle centers
+                        5,           // minRadius
+                        50           // maxRadius (adjust based on video)
+                       );
 
-        cv.findContours(mask, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+        trackingStatus.textContent = '공 감지 안됨';
 
-        let bestFit = null;
-        let maxArea = 0;
-
-        for (let i = 0; i < contours.size(); ++i) {
-            let cnt = contours.get(i);
-            let area = cv.contourArea(cnt, false);
-            let perimeter = cv.arcLength(cnt, true);
-            let circularity = (4 * Math.PI * area) / (perimeter * perimeter);
-
-            if (circularity > 0.6 && area > 100 && area > maxArea) {
-                let circle = cv.minEnclosingCircle(cnt);
-                if (circle.radius > 5) {
-                    maxArea = area;
-                    bestFit = circle;
-                }
+        // Draw detected circles
+        if (circles.cols > 0) {
+            trackingStatus.textContent = '⚽ 공 감지됨';
+            for (let i = 0; i < circles.cols; ++i) {
+                let x = circles.data32F[i * 3];
+                let y = circles.data32F[i * 3 + 1];
+                let radius = circles.data32F[i * 3 + 2];
+                let point = new cv.Point(x, y);
+                cv.circle(src, point, radius, new cv.Scalar(0, 255, 0, 255), 3); // Draw a green circle
             }
-            cnt.delete();
-        }
-
-        if (bestFit) {
-            let point = bestFit.center;
-            let radius = bestFit.radius;
-            let color = new cv.Scalar(255, 0, 0, 255);
-            cv.circle(src, point, radius, color, 2);
-            trackingStatus.textContent = '⚽ 공 감지됨'; // Ball detected
-        } else {
-            trackingStatus.textContent = '공 감지 안됨'; // Ball not detected
         }
         
         cv.imshow('videoCanvas', src);
 
-        src.delete(); hsv.delete(); mask.delete(); contours.delete(); hierarchy.delete(); low.delete(); high.delete();
+        // Clean up memory
+        src.delete(); gray.delete(); circles.delete();
 
     } catch (err) {
         console.error(err);
         status.textContent = '오류 발생: ' + err.message;
-        trackingStatus.textContent = '추적 상태: 오류 발생'; // Tracking status on error
+        trackingStatus.textContent = '추적 상태: 오류 발생';
         processing = false;
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
