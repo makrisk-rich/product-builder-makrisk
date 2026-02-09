@@ -148,61 +148,32 @@ function processFrame() {
     
     try {
         let src = cv.imread(canvas);
-        let hsv = new cv.Mat(); // New
-        let mask = new cv.Mat(); // New
+        let hsv = new cv.Mat();
+        let mask = new cv.Mat();
         let circles = new cv.Mat();
-        // let gray = new cv.Mat(); // No longer needed if running HoughCircles on mask
 
-        // 1. Convert to HSV color space
         cv.cvtColor(src, hsv, cv.COLOR_RGBA2RGB);
         cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
 
-        // 2. Define color range for a white/light soccer ball
-        // These values are for detecting white/light objects in HSV
-        let low = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [0, 0, 200, 0]); // H,S,V low
-        let high = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [180, 50, 255, 255]); // H,S,V high
+        let low = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [0, 0, 200, 0]);
+        let high = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [180, 50, 255, 255]);
         cv.inRange(hsv, low, high, mask);
-        low.delete(); // Clean up
-        high.delete(); // Clean up
+        low.delete();
+        high.delete();
 
-        // 3. Morphological operations to clean up the mask
         let M = cv.Mat.ones(5, 5, cv.CV_8U);
-        cv.morphologyEx(mask, mask, cv.MORPH_OPEN, M); // Opening to remove small noise
-        cv.morphologyEx(mask, mask, cv.MORPH_CLOSE, M); // Closing to connect components
+        cv.morphologyEx(mask, mask, cv.MORPH_OPEN, M);
+        cv.morphologyEx(mask, mask, cv.MORPH_CLOSE, M);
         M.delete();
 
-        // 4. Run HoughCircles on the *mask* (binary image)
-        // Parameters may need further tuning for binary input
-        cv.HoughCircles(mask, circles, cv.HOUGH_GRADIENT,
-                        1,              // dp
-                        mask.rows / 32, // minDist (keep lenient)
-                        50,             // param1: (less relevant for binary mask, but still acts as an edge threshold)
-                        15,             // param2: Accumulator threshold (can be kept low as input is cleaner)
-                        1,              // minRadius
-                        150             // maxRadius
-                       );
-
-        trackingStatus.textContent = '공 감지 안됨';
-
-        // Draw detected circles
-        if (circles.cols > 0) {
-            console.log(`Detected ${circles.cols} circles.`);
-            trackingStatus.textContent = '⚽ 공 감지됨';
-            for (let i = 0; i < circles.cols; ++i) {
-                let x = circles.data32F[i * 3];
-                let y = circles.data32F[i * 3 + 1];
-                let radius = circles.data32F[i * 3 + 2];
-                let point = new cv.Point(x, y);
-                cv.circle(src, point, radius, new cv.Scalar(0, 255, 0, 255), 3); // Draw a green circle
-                console.log(`  Circle ${i}: x=${x}, y=${y}, r=${radius}`);
-            }
-        }
-        
-        cv.imshow('videoCanvas', src);
+        // --- DEBUG: Show the mask directly ---
+        cv.imshow('videoCanvas', mask);
+        trackingStatus.textContent = '마스크 표시 중... (공이 흰색으로 보여야 함)';
+        console.log('Showing color mask. Check if the ball appears as a white blob.');
+        // --- END DEBUG ---
 
         // Clean up memory
         src.delete(); hsv.delete(); mask.delete(); circles.delete();
-        // gray.delete(); // gray is no longer created, so don't delete
 
     } catch (err) {
         console.error(err);
