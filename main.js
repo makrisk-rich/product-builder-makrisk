@@ -3,19 +3,23 @@ const numbersContainer = document.querySelector('.numbers-container');
 const generateBtn = document.querySelector('.generate-btn');
 const themeToggle = document.getElementById('theme-toggle');
 
-generateBtn.addEventListener('click', () => {
-    generateLottoNumbers();
-});
+if (generateBtn) {
+    generateBtn.addEventListener('click', () => {
+        generateLottoNumbers();
+    });
+}
 
-themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    let theme = 'light';
-    if (document.body.classList.contains('dark-mode')) {
-        theme = 'dark';
-    }
-    localStorage.setItem('theme', theme);
-    setGiscusTheme(theme);
-});
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        let theme = 'light';
+        if (document.body.classList.contains('dark-mode')) {
+            theme = 'dark';
+        }
+        localStorage.setItem('theme', theme);
+        setGiscusTheme(theme);
+    });
+}
 
 function generateLottoNumbers() {
     numbersContainer.innerHTML = '';
