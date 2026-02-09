@@ -5,6 +5,7 @@ const stopBtn = document.getElementById('stopBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const status = document.getElementById('status');
 const progressPercent = document.getElementById('progressPercent');
+const trackingStatus = document.getElementById('trackingStatus'); // New: Tracking Status
 const videoPlayer = document.getElementById('videoPlayer');
 const canvas = document.getElementById('videoCanvas');
 const ctx = canvas.getContext('2d');
@@ -19,6 +20,7 @@ let stream; // To hold the MediaStream from canvas
 function onOpenCvReady() {
     console.log('OpenCV.js loaded successfully.');
     status.textContent = 'OpenCV.js가 준비되었습니다. 처리할 동영상을 선택하세요.';
+    trackingStatus.textContent = ''; // Initialize tracking status
     processBtn.disabled = false;
     stopBtn.disabled = true;
     downloadBtn.classList.add('disabled-link');
@@ -37,7 +39,8 @@ videoUpload.addEventListener('change', (e) => {
             canvas.height = videoPlayer.videoHeight;
             videoLoaded = true;
             status.textContent = '동영상이 로드되었습니다. "영상 처리 시작" 버튼을 누르세요.';
-            progressPercent.textContent = '';
+            progressPercent.textContent = ''; // Clear progress text
+            trackingStatus.textContent = ''; // Clear tracking status
             ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
             processBtn.disabled = false;
             stopBtn.disabled = true;
@@ -47,6 +50,7 @@ videoUpload.addEventListener('change', (e) => {
         videoPlayer.onerror = (err) => {
             console.error('Video loading error:', err);
             status.textContent = '동영상 로드 중 오류가 발생했습니다. 다른 파일을 시도해보세요.';
+            trackingStatus.textContent = '추적 상태: 오류'; // Set tracking status on error
             videoLoaded = false;
             processBtn.disabled = true;
             stopBtn.disabled = true;
@@ -54,6 +58,7 @@ videoUpload.addEventListener('change', (e) => {
         };
     } else {
         status.textContent = '동영상 파일이 선택되지 않았습니다.';
+        trackingStatus.textContent = '';
         videoLoaded = false;
         processBtn.disabled = true;
         stopBtn.disabled = true;
@@ -71,6 +76,7 @@ processBtn.addEventListener('click', () => {
     console.log('Starting video processing...');
     processing = true;
     status.textContent = '영상 처리 중...';
+    trackingStatus.textContent = '추적 상태: 초기화 중...'; // Initial tracking status
     processBtn.disabled = true;
     stopBtn.disabled = false;
     downloadBtn.classList.add('disabled-link');
@@ -98,6 +104,7 @@ processBtn.addEventListener('click', () => {
         downloadBtn.classList.remove('disabled-link');
         status.textContent = '영상 처리가 완료되었습니다. 다운로드 버튼을 누르세요.';
         progressPercent.textContent = '';
+        trackingStatus.textContent = '추적 상태: 완료'; // Final tracking status
         processing = false;
         processBtn.disabled = false;
         stopBtn.disabled = true;
@@ -126,6 +133,7 @@ function processFrame() {
         // Ensure UI state is correct on stop/end
         if (!processing) { // Stopped by user
              status.textContent = '처리가 중지되었습니다.';
+             trackingStatus.textContent = '추적 상태: 중지됨'; // Tracking status on user stop
         }
         processBtn.disabled = false;
         stopBtn.disabled = true;
@@ -182,6 +190,9 @@ function processFrame() {
             let radius = bestFit.radius;
             let color = new cv.Scalar(255, 0, 0, 255);
             cv.circle(src, point, radius, color, 2);
+            trackingStatus.textContent = '⚽ 공 감지됨'; // Ball detected
+        } else {
+            trackingStatus.textContent = '공 감지 안됨'; // Ball not detected
         }
         
         cv.imshow('videoCanvas', src);
@@ -191,6 +202,7 @@ function processFrame() {
     } catch (err) {
         console.error(err);
         status.textContent = '오류 발생: ' + err.message;
+        trackingStatus.textContent = '추적 상태: 오류 발생'; // Tracking status on error
         processing = false;
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
