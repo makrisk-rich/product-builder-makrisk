@@ -159,19 +159,21 @@ function processFrame() {
 
         // Detect circles using HoughCircles
         // Parameters: (image, circles, method, dp, minDist, param1, param2, minRadius, maxRadius)
+        // Tuned for smaller balls and wider detection range
         cv.HoughCircles(gray, circles, cv.HOUGH_GRADIENT,
-                        1,           // dp: Inverse ratio of accumulator resolution
-                        gray.rows / 8, // minDist: Minimum distance between detected centers
-                        100,         // param1: Upper threshold for the Canny edge detector
-                        30,          // param2: Accumulator threshold for circle centers
-                        5,           // minRadius
-                        50           // maxRadius (adjust based on video)
+                        1,             // dp: Inverse ratio of accumulator resolution
+                        gray.rows / 16, // minDist: Minimum distance between detected centers (reduced for smaller balls)
+                        100,           // param1: Upper threshold for the Canny edge detector
+                        20,            // param2: Accumulator threshold for circle centers (reduced to detect fainter circles)
+                        1,             // minRadius: Minimum circle radius (set to 1 for very small balls)
+                        100            // maxRadius: Maximum circle radius (increased to 100)
                        );
 
         trackingStatus.textContent = '공 감지 안됨';
 
         // Draw detected circles
         if (circles.cols > 0) {
+            console.log(`Detected ${circles.cols} circles.`);
             trackingStatus.textContent = '⚽ 공 감지됨';
             for (let i = 0; i < circles.cols; ++i) {
                 let x = circles.data32F[i * 3];
@@ -179,6 +181,7 @@ function processFrame() {
                 let radius = circles.data32F[i * 3 + 2];
                 let point = new cv.Point(x, y);
                 cv.circle(src, point, radius, new cv.Scalar(0, 255, 0, 255), 3); // Draw a green circle
+                console.log(`  Circle ${i}: x=${x}, y=${y}, r=${radius}`);
             }
         }
         
