@@ -148,25 +148,38 @@ function processFrame() {
     
     try {
         let src = cv.imread(canvas);
-        let gray = new cv.Mat();
+        let hsv = new cv.Mat(); // New
+        let mask = new cv.Mat(); // New
         let circles = new cv.Mat();
+        // let gray = new cv.Mat(); // No longer needed if running HoughCircles on mask
 
-        // Convert to grayscale
-        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+        // 1. Convert to HSV color space
+        cv.cvtColor(src, hsv, cv.COLOR_RGBA2RGB);
+        cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
 
-        // Blur the image to reduce noise and false detections
-        cv.GaussianBlur(gray, gray, new cv.Size(9, 9), 2, 2);
+        // 2. Define color range for a white/light soccer ball
+        // These values are for detecting white/light objects in HSV
+        let low = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [0, 0, 200, 0]); // H,S,V low
+        let high = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [180, 50, 255, 255]); // H,S,V high
+        cv.inRange(hsv, low, high, mask);
+        low.delete(); // Clean up
+        high.delete(); // Clean up
 
-        // Detect circles using HoughCircles
-        // Parameters: (image, circles, method, dp, minDist, param1, param2, minRadius, maxRadius)
-        // Tuned to be more lenient for smaller balls and a wider detection range
-        cv.HoughCircles(gray, circles, cv.HOUGH_GRADIENT,
-                        1,             // dp: Inverse ratio of accumulator resolution
-                        gray.rows / 32, // minDist: Minimum distance between detected centers (more forgiving)
-                        80,            // param1: Upper threshold for the Canny edge detector (lower to detect weaker edges)
-                        15,            // param2: Accumulator threshold for circle centers (even lower for fainter circles)
-                        1,             // minRadius: Minimum circle radius (set to 1 for very small balls)
-                        150            // maxRadius: Maximum circle radius (increased for larger balls)
+        // 3. Morphological operations to clean up the mask
+        let M = cv.Mat.ones(5, 5, cv.CV_8U);
+        cv.morphologyEx(mask, mask, cv.MORPH_OPEN, M); // Opening to remove small noise
+        cv.morphologyEx(mask, mask, cv.MORPH_CLOSE, M); // Closing to connect components
+        M.delete();
+
+        // 4. Run HoughCircles on the *mask* (binary image)
+        // Parameters may need further tuning for binary input
+        cv.HoughCircles(mask, circles, cv.HOUGH_GRADIENT,
+                        1,              // dp
+                        mask.rows / 32, // minDist (keep lenient)
+                        50,             // param1: (less relevant for binary mask, but still acts as an edge threshold)
+                        15,             // param2: Accumulator threshold (can be kept low as input is cleaner)
+                        1,              // minRadius
+                        150             // maxRadius
                        );
 
         trackingStatus.textContent = '공 감지 안됨';
@@ -188,7 +201,8 @@ function processFrame() {
         cv.imshow('videoCanvas', src);
 
         // Clean up memory
-        src.delete(); gray.delete(); circles.delete();
+        src.delete(); hsv.delete(); mask.delete(); circles.delete();
+        // gray.delete(); // gray is no longer created, so don't delete
 
     } catch (err) {
         console.error(err);
